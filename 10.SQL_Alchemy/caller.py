@@ -1,10 +1,12 @@
 from sqlalchemy.orm import sessionmaker
 
+from Exercise.models_ex import Recipe
+from helper import session_decorator
 from main import engine
 from models import User, Order
 
 Session = sessionmaker(bind=engine)
-# session = Session()
+session = Session()
 
 # with Session() as session:
 # 	new_user = User(username='Gosho', email='gosho@localhost.com')
@@ -62,3 +64,14 @@ def relationship_query():
 
 
 # relationship_query()
+
+
+@session_decorator(session)
+def create_recipe(name: str, ingredients: str, instructions: str):
+    new_recipe = Recipe(
+        name=name,
+        ingredients=ingredients,
+        instructions=instructions
+    )
+
+    session.add(new_recipe)
