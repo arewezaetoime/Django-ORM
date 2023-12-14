@@ -75,3 +75,65 @@ def create_recipe(name: str, ingredients: str, instructions: str):
     )
 
     session.add(new_recipe)
+
+
+@session_decorator(session)
+def update_recipe_by_name(name: str, new_name: str,  new_ingredients: str, new_instructions: str):
+    records_changed: int = (
+        session.query(Recipe)
+        .filter_by(name=name)
+        .update({
+            Recipe.name: new_name,
+            Recipe.ingredients: new_ingredients,
+            Recipe.instructions: new_instructions,
+        })
+    )
+
+    # recipe_to_update = session.query(Recipe).filter_by(name=name).first()  # SELECT Recipe
+    #
+    # recipe_to_update.name = new_name
+    # recipe_to_update.ingredients = new_ingredients
+    # recipe_to_update.instructions = new_instructions
+
+    return records_changed
+
+
+@session_decorator(session)
+def delete_recipe_by_name(name: str):
+    changed_records: int = (
+        session.query(Recipe)
+        .filter_by(name=name)
+        .delete()
+    )
+
+    return changed_records
+
+
+@session_decorator(session)
+def get_recipes_by_ingredient(ingredient_name: str):
+    recipes_with_ingredient = (
+        session.query(Recipe)
+        .filter(Recipe.ingredients.ilike(f"%{ingredient_name}%"))
+        .all()
+    )
+
+    return recipes_with_ingredient
+
+
+@session_decorator(session)
+def swap_recipe_ingredients_by_name(first_recipe_name: str, second_recipe_name: str):
+    first_recipe = (
+        session.query(Recipe)
+        .filter_by(name=first_recipe_name)
+        .with_for_update()
+        .one()
+    )
+
+    second_recipe = (
+        session.query(Recipe)
+        .filter_by(name=second_recipe_name)
+        .with_for_update()
+        .one()
+    )
+
+    first_recipe.ingredients, second_recipe.ingredients = second_recipe.ingredients, first_recipe.ingredients
