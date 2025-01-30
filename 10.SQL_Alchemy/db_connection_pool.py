@@ -4,16 +4,11 @@ from sqlalchemy.orm import sessionmaker
 from main import engine
 from models import User
 
-# Create a session factory
 Session = sessionmaker(bind=engine)
-# Use sessions as needed
-
 
 with Session as session:
-	actual_users = session.query(User).all()
-	if actual_users:
-		for user in actual_users:
-			print(f'User: {user.id}')
+    users = session.query(User).all()
+	
+    print(*(f'User: {user.id}' for user in users), sep='\n') if users else None
 
-# Close the session
 session.close()
